@@ -1,0 +1,22 @@
+touch.sh runs go.py
+
+class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
+
+Uses
+numpy, pyqtgraph, PyQt4, QtCore, QtGui, sys, ui_main, SWHear
+
+Uses SWHear.SWHear()
+
+
+touch2.sh runs livespec.py
+
+Uses 
+import numpy , pyqtgraph, pyaudio, PyQt4, QtCore, QtGui
+
+
+
+
+"..The resulting design [was] so user friendly that manufacturing line operators can use the software without having to be trained."
+
+Yes, because that's we all want - people operating machinery without any training!
+
