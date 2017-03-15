@@ -20,3 +20,15 @@ import numpy , pyqtgraph, pyaudio, PyQt4, QtCore, QtGui
 
 Yes, because that's we all want - people operating machinery without any training!
 
+
+w.clicked.connect(toggle_recording)
+
+def toggle_recording():
+   print "Widget clicked - toggle recording"
+   
+if __name__ == '__main__':
+   window()
+   
+1) Detect click   
+2) Write to file - until clicked.
+3) Use circular buffer to write all we can to file.
