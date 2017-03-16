@@ -108,7 +108,8 @@ class SWHear(object):
     def stream_readchunk(self):
         """reads some audio and re-launches itself"""
         try:
-            self.data = np.fromstring(self.stream.read(self.chunk),dtype=np.int16)
+            self.rawData = self.stream.read(self.chunk)
+            self.data = np.fromstring(self.rawData,dtype=np.int16)
             self.fftx, self.fft = getFFT(self.data,self.rate)
 
         except Exception as E:

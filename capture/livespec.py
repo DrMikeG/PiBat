@@ -1,7 +1,9 @@
+import subprocess
 import numpy as np
 import pyqtgraph as pg
 import pyaudio
 from PyQt4 import QtCore, QtGui
+
 
 FS = 192000 #Hz
 CHUNKSZ = 4096 #samples
@@ -72,6 +74,9 @@ class SpectrogramWidget(pg.PlotWidget):
         self.img.setImage(self.img_array, autoLevels=False)
 
 if __name__ == '__main__':
+    
+    subprocess.call ("/home/pi/Record_from_Headset.sh", shell=True) #set up to record from headphone mic
+
     app = QtGui.QApplication([])
     w = SpectrogramWidget()
     w.read_collected.connect(w.update)

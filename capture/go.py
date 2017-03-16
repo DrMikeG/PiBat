@@ -1,9 +1,26 @@
 from PyQt4 import QtGui,QtCore
 import sys
+import subprocess
 import ui_main
 import numpy as np
 import pyqtgraph
 import SWHear
+import pyaudio
+import wave
+import os
+ 
+outFORMAT = pyaudio.paInt16
+outCHANNELS = 1
+outRATE = 192000
+#outCHUNK = 1024
+#outCHUNK = 8192
+outRECORD_SECONDS = 5
+outWAVE_OUTPUT_FILENAME = "/home/pi/bat"
+
+
+# This displays a pyQt widget with a left scrolling windows
+# Y axis is frequency
+# Colour is intensity
 
 class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent=None):
@@ -17,11 +34,28 @@ class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.roll=0.0
         self.ear = SWHear.SWHear()
         self.ear.stream_start()
-        self.maxFFTRollCount=0;
-        self.maxFFTRoll=0.1;
+        self.maxFFTRollCount=0
+        self.maxFFTRoll=0.1
+        self.recording=False
+        #self.waveFile = wave.open(outWAVE_OUTPUT_FILENAME, 'wb')
+        #self.waveFile.setnchannels(outCHANNELS)
+        #audio = pyaudio.PyAudio()
+        #self.waveFile.setsampwidth(audio.get_sample_size(outFORMAT))
+        #self.waveFile.setframerate(outRATE)
+        #waveFile.writeframes(b''.join(frames))
+        #waveFile.close()
+        self.centralwidget.mousePressEvent=self.toggle_recording
+
+    #def __del__(self):
+        #if not self.waveFile is None:
+        #    self.waveFile.close()
+
 
     def update(self):
         if not self.ear.data is None and not self.ear.fft is None:
+            
+            if self.recording:
+                self.waveFile.writeframes(b''.join(self.ear.rawData))    
             #pcmMax=np.max(np.abs(self.ear.data))
             #if pcmMax>self.maxPCM:
                 #self.maxPCM=pcmMax
@@ -76,7 +110,44 @@ class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         QtCore.QTimer.singleShot(1, self.update) # QUICKLY repeat
 
+    def nextFilename(self):
+        for i in range(1,50):
+            string=outWAVE_OUTPUT_FILENAME+str(i)+".wav"
+            if not os.path.exists(string):
+                return string
+        return ""
+
+
+    def beginRecording(self):
+        print "beginRecording()"
+        string = self.nextFilename()
+        self.waveFile = wave.open(string, 'wb')
+        self.waveFile.setnchannels(outCHANNELS)
+        audio = pyaudio.PyAudio()
+        self.waveFile.setsampwidth(audio.get_sample_size(outFORMAT))
+        self.waveFile.setframerate(outRATE)
+        self.setWindowTitle("Recording...")
+
+    def endRecording(self):
+        print "endRecording()"
+        if not self.waveFile is None:
+            self.waveFile.close()
+            self.setWindowTitle("Recording ended...")
+
+
+    def toggle_recording(self, event):
+       print "Widget clicked - toggle recording"
+       if self.recording:
+          self.endRecording()
+          self.recording = False
+       else:
+          self.beginRecording()
+          self.recording = True
+       #string = self.nextFilename()
+       #print string
+
 if __name__=="__main__":
+    subprocess.call ("/home/pi/Record_from_Headset.sh", shell=True) #set up to record from headphone mic
     app = QtGui.QApplication(sys.argv)
     form = ExampleApp()
     form.show()
