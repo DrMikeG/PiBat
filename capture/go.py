@@ -16,7 +16,7 @@ outRATE = 192000
 #outCHUNK = 8192
 outRECORD_SECONDS = 5
 outWAVE_OUTPUT_FILENAME = "/home/pi/bat"
-
+# aplay -D plughw:0,0 ./bat1.wav
 
 # This displays a pyQt widget with a left scrolling windows
 # Y axis is frequency
@@ -36,7 +36,7 @@ class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.ear.stream_start()
         self.maxFFTRollCount=0
         self.maxFFTRoll=0.1
-        self.recording=False
+        #self.recording=False
         #self.waveFile = wave.open(outWAVE_OUTPUT_FILENAME, 'wb')
         #self.waveFile.setnchannels(outCHANNELS)
         #audio = pyaudio.PyAudio()
@@ -54,8 +54,8 @@ class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def update(self):
         if not self.ear.data is None and not self.ear.fft is None:
             
-            if self.recording:
-                self.waveFile.writeframes(b''.join(self.ear.rawData))    
+            #if self.recording:
+            #    self.waveFile.writeframes(b''.join(self.ear.rawData))    
             #pcmMax=np.max(np.abs(self.ear.data))
             #if pcmMax>self.maxPCM:
                 #self.maxPCM=pcmMax
@@ -121,28 +121,29 @@ class ExampleApp(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     def beginRecording(self):
         print "beginRecording()"
         string = self.nextFilename()
-        self.waveFile = wave.open(string, 'wb')
-        self.waveFile.setnchannels(outCHANNELS)
+        self.ear.fHandle = wave.open(string, 'wb')
+        self.ear.fHandle.setnchannels(outCHANNELS)
         audio = pyaudio.PyAudio()
-        self.waveFile.setsampwidth(audio.get_sample_size(outFORMAT))
-        self.waveFile.setframerate(outRATE)
+        self.ear.fHandle.setsampwidth(audio.get_sample_size(outFORMAT))
+        self.ear.fHandle.setframerate(outRATE)
         self.setWindowTitle("Recording...")
 
     def endRecording(self):
         print "endRecording()"
-        if not self.waveFile is None:
-            self.waveFile.close()
+        if not self.ear.fHandle is None:
+            self.ear.fHandle.close()
+            self.ear.fHandle = None
             self.setWindowTitle("Recording ended...")
 
 
     def toggle_recording(self, event):
        print "Widget clicked - toggle recording"
-       if self.recording:
+       if self.ear.recording:
+          self.ear.recording = False
           self.endRecording()
-          self.recording = False
        else:
           self.beginRecording()
-          self.recording = True
+          self.ear.recording = True
        #string = self.nextFilename()
        #print string
 

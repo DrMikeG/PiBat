@@ -36,6 +36,8 @@ class SWHear(object):
         self.device=device
         self.rate=rate
         self.dropped=0
+        self.fHandle=None
+        self.recording = False
 
     ### SYSTEM TESTS
 
@@ -109,6 +111,13 @@ class SWHear(object):
         """reads some audio and re-launches itself"""
         try:
             self.rawData = self.stream.read(self.chunk)
+            if self.recording:
+                if not self.fHandle is None:
+                    try:
+                        #print("write to file")
+                        self.fHandle.writeframes(b''.join(self.rawData))
+                    except Exception as F:
+                        print str(F)
             self.data = np.fromstring(self.rawData,dtype=np.int16)
             self.fftx, self.fft = getFFT(self.data,self.rate)
 
